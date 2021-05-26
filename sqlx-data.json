@@ -1,0 +1,87 @@
+{
+  "db": "SQLite",
+  "118cd0088a4154b6557cc81261b6c8ceb6db7c6ff0d2c2f3e87aef4972f5d494": {
+    "query": "SELECT url FROM sendungen WHERE url = ?\n",
+    "describe": {
+      "columns": [
+        {
+          "name": "url",
+          "ordinal": 0,
+          "type_info": "Text"
+        }
+      ],
+      "parameters": {
+        "Right": 1
+      },
+      "nullable": [
+        false
+      ]
+    }
+  },
+  "45d271ecd3744e3ac90754bd44b0020195e3fa61de6548c2324ba36cac55ef67": {
+    "query": "INSERT INTO gastsendung\n(seid, gid) VALUES (?,?)\n",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Right": 2
+      },
+      "nullable": []
+    }
+  },
+  "8d041fe6656b0633f890c09213313c8cfb5b0f480215cc2163596f1fa08525e1": {
+    "query": "INSERT INTO sendungen\n(sid, name, url, datum) VALUES (?,?,?,?)\nRETURNING seid as \"seid: i64\";\n",
+    "describe": {
+      "columns": [
+        {
+          "name": "seid: i64",
+          "ordinal": 0,
+          "type_info": "Null"
+        }
+      ],
+      "parameters": {
+        "Right": 4
+      },
+      "nullable": [
+        null
+      ]
+    }
+  },
+  "a782b746de636a2f7382be0d666096b86cd1844375b4da5ae4bf46808df150e1": {
+    "query": "BEGIN;\nPRAGMA foreign_keys = ON;\n\nCREATE TABLE IF NOT EXISTS gaeste (\n\tgid INTEGER PRIMARY KEY,\n\tname TEXT UNIQUE NOT NULL,\n\ttitle TEXT,\n\tparty TEXT,\n\tbiografie TEXT,\n\turl TEXT\n);\n\nCREATE TABLE IF NOT EXISTS shows (\n\tsid INTEGER PRIMARY KEY,\n\tname TEXT UNIQUE NOT NULL\n);\n\nCREATE TABLE IF NOT EXISTS sendungen (\n\tseid INTEGER PRIMARY KEY,\n\tsid REFERENCES shows (sid) ON DELETE CASCADE ON UPDATE NO ACTION,\n\tname TEXT NOT NULL DEFAULT '',\n\turl TEXT NOT NULL,\n\tdatum TEXT NOT NULL\n);\n\nCREATE TABLE IF NOT EXISTS gastsendung (\n\tseid REFERENCES sendungen (seid) ON DELETE CASCADE ON UPDATE NO ACTION,\n\tgid REFERENCES gaeste (gid) ON DELETE CASCADE ON UPDATE NO ACTION,\n\tPRIMARY KEY (seid, gid)\n);\n\nCREATE UNIQUE INDEX IF NOT EXISTS surl ON sendungen (url);\nCREATE INDEX IF NOT EXISTS sname ON sendungen (name);\nCREATE INDEX IF NOT EXISTS sdatum ON sendungen (datum);\nCREATE UNIQUE INDEX IF NOT EXISTS gname ON gaeste (name);\n-- No index for shows(name) as shows is expected to be very small (5 entries by now)\n\nINSERT OR IGNORE INTO shows (sid, name) VALUES (0, 'Anne Will');\nINSERT OR IGNORE INTO shows (sid, name) VALUES (1, 'Hart aber fair');\nINSERT OR IGNORE INTO shows (sid, name) VALUES (2, 'Maischberger - Die Woche');\nINSERT OR IGNORE INTO shows (sid, name) VALUES (3, 'Maybrit Illner');\nINSERT OR IGNORE INTO shows (sid, name) VALUES (4, 'Markus Lanz');\n\nCOMMIT;\n",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Right": 0
+      },
+      "nullable": []
+    }
+  },
+  "ab50f356c4d6c3f93d7334dca5dcdf340198937efd2b13c135437cee5ecd513c": {
+    "query": "INSERT OR IGNORE INTO gaeste\n(name, title, party, biografie, url) VALUES (?,?,?,?,?)\n",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Right": 5
+      },
+      "nullable": []
+    }
+  },
+  "f20a610d97ef81dd912bd7039d45581889faa1a83e1ada4f8b7ca35743c5fe1d": {
+    "query": "SELECT gid FROM gaeste WHERE name = ?\n",
+    "describe": {
+      "columns": [
+        {
+          "name": "gid",
+          "ordinal": 0,
+          "type_info": "Int64"
+        }
+      ],
+      "parameters": {
+        "Right": 1
+      },
+      "nullable": [
+        true
+      ]
+    }
+  }
+}
